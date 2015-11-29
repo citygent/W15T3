@@ -29,6 +29,7 @@ mongodb.MongoClient.connect(blogUrl, {}, function (err, connection) {
 
   connection.collection('comments').find().toArray(function(err, commentData){
       getUsers(commentData);
+      // console.log(commentData)
     })
   connection.close;
 })
@@ -37,16 +38,19 @@ function getUsers(comments){
   mongodb.MongoClient.connect(globalUrl, {}, function (err, connection) {
   if (err) throw err;
   for (var i = comments.length - 1; i >= 0; i--) {
-    console.log(comments[i].user)
-    connection.collection('users').findOne({_id: ObjectId(comments[i].user)}, function(err, userData){
-      console.log(userData);
-    })
+    // var commentArray = comments;
+    var userId = comments[i].user;
+    var userObj = connection.collection('users').findOne({_id: ObjectId(userId)})
+    if (userObj) {
+      comments[i].user = userObj;
+      console.log('line46', comments)
+    }
   };
   connection.close;
+  console.log('line50', comments)
   })
 }
 
 server.listen(port, function (){
   console.log('listening on port %d', port)
 });
-
