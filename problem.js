@@ -3,7 +3,8 @@
 var http = require('http')
 var mongodb = require('mongodb')
 var ObjectId = mongodb.ObjectId
-var url = 'mongodb://localhost:27017/pinipa_exercise_blog'
+var blogUrl = 'mongodb://localhost:27017/pinipa_exercise_blog'
+var globalUrl = 'mongodb://localhost:27017/pinipa_exercise_global'
 var port = 8000
 
 var server = http.createServer(function requestHandler (req, res) {
@@ -23,19 +24,21 @@ var server = http.createServer(function requestHandler (req, res) {
 
 var result;
 
-mongodb.MongoClient.connect(url, {}, function (err, connection) {
+mongodb.MongoClient.connect(blogUrl, {}, function (err, connection) {
   if (err) throw err;
 
   connection.collection('comments').find().toArray(function(err, commentData){
-      // var i;
-      // for (i=0; i < data.length; i++) {
-      //   dataArray.push(data[i]);
-      // }
-      // connection.close;
       result = commentData;
+      getUsers(commentData);
     })
   connection.close;
 })
+
+function getUsers(comments){
+  for (var i = comments.length - 1; i >= 0; i--) {
+    console.log(comments[i].user)
+  };
+}
 
 server.listen(port, function (){
   console.log('listening on port %d', port)
