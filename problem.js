@@ -21,7 +21,7 @@ var server = http.createServer(function requestHandler (req, res) {
   }
 })
 
-var result;
+var result = [];
 var commentArray, userArray;
 
 mongodb.MongoClient.connect(url, {}, function (err, connection) {
@@ -37,10 +37,14 @@ mongodb.MongoClient.connect(url, {}, function (err, connection) {
 
     for (var i = 0; i < commentArray.length; i++) {
       for (var j = 0; j < userArray.length; j++) {
-        console.log(String(commentArray[i].user))
-        console.log(String(userArray[j]._id))
-      }
-      commentArray[i]
+        if (String(commentArray[i].user) === String(userArray[j]._id)) {
+          var commentObj = {}
+          commentObj.firstName = userArray[j].first_name;
+          commentObj.lastName = userArray[j].last_name;
+          commentObj.content = commentArray[i].content;
+          console.log(commentObj)
+        }
+      };
     };
 
 
