@@ -3,8 +3,7 @@
 var http = require('http')
 var mongodb = require('mongodb')
 var ObjectId = mongodb.ObjectId
-var blogUrl = 'mongodb://localhost:27017/pinipa_exercise_blog'
-var globalUrl = 'mongodb://localhost:27017/pinipa_exercise_global'
+var url = 'mongodb://localhost:27017'
 var port = 8000
 
 var server = http.createServer(function requestHandler (req, res) {
@@ -23,32 +22,40 @@ var server = http.createServer(function requestHandler (req, res) {
 })
 
 var result;
+var commentArray, userArray;
 
-mongodb.MongoClient.connect(blogUrl, {}, function (err, connection) {
+mongodb.MongoClient.connect(url, {}, function (err, connection) {
   if (err) throw err;
+  var blog = connection.db('pinipa_exercise_blog');
+  blog.collection('comments').find().toArray(function(err, commentData){
+    commentArray = commentData;
+    // console.log(commentArray)
+  });
+  var global = connection.db('pinipa_exercise_global');
+  global.collection('users').find().toArray(function(err, userData){
+    userArray = userData;
 
-  connection.collection('comments').find().toArray(function(err, commentData){
-      getUsers(commentData);
-      // console.log(commentData)
-    })
+    for (var i = 0; i < commentArray.length; i++) {
+      for (var j = 0; j < userArray.length; j++) {
+        console.log(String(commentArray[i].user))
+        console.log(String(userArray[j]._id))
+      }
+      commentArray[i]
+    };
+
+
+
+    // console.log(userArray)
+  })
   connection.close;
 })
 
-function getUsers(comments){
-  mongodb.MongoClient.connect(globalUrl, {}, function (err, connection) {
-  if (err) throw err;
-  for (var i = comments.length - 1; i >= 0; i--) {
-    // var commentArray = comments;
-    var userId = comments[i].user;
-    var userObj = connection.collection('users').findOne({_id: ObjectId(userId)})
-    if (userObj) {
-      comments[i].user = userObj;
-      console.log('line46', comments)
-    }
-  };
-  connection.close;
-  console.log('line50', comments)
-  })
+if (commentArray) {
+  console.log('commentArray!')
+}
+
+if (userArray) {
+  console.log('userArray!')
 }
 
 server.listen(port, function (){
